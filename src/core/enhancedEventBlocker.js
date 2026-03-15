@@ -61,6 +61,11 @@ function overrideAddEventListener() {
             return originalAddEventListener.call(this, type, listener, options);
         }
         
+        // 检查 this 是否是对象，如果不是，直接调用原始方法
+        if (typeof this !== 'object' || this === null) {
+            return originalAddEventListener.call(this, type, listener, options);
+        }
+        
         // 创建拦截的处理器
         const interceptedHandler = createInterceptedHandler(listener, type);
         
@@ -83,6 +88,11 @@ function overrideAddEventListener() {
 // 重写 removeEventListener
 function overrideRemoveEventListener() {
     window.EventTarget.prototype.removeEventListener = function(type, listener, options) {
+        // 检查 this 是否是对象，如果不是，直接调用原始方法
+        if (typeof this !== 'object' || this === null) {
+            return originalRemoveEventListener.call(this, type, listener, options);
+        }
+        
         // 获取存储的拦截处理器
         const elementListeners = interceptedListeners.get(this);
         if (elementListeners && elementListeners.has(type)) {

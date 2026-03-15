@@ -37,8 +37,6 @@ import { initEnhancedEventBlocker, enableEnhancedMode, disableEnhancedMode } fro
     // 语言配置
     let currentLanguage = GM_getValue('eventBlockerLanguage', 'zh');
 
-    // 初始化增强模式事件阻止器
-    initEnhancedEventBlocker();
 
     // 应用增强模式
     function applyEnhancedMode() {
@@ -51,6 +49,8 @@ import { initEnhancedEventBlocker, enableEnhancedMode, disableEnhancedMode } fro
                     }
                 });
             }
+            // 初始化增强模式事件阻止器
+            initEnhancedEventBlocker();
             enableEnhancedMode(enabledTypes);
         } else {
             disableEnhancedMode();
