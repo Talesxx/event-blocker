@@ -1,0 +1,147 @@
+// 事件列表
+export const events = {
+    mouseEvents: [
+        // 'click',
+        //  'dblclick', 
+        
+         'mousedown', 'mouseup', 'mousemove',
+        'mouseover', 'mouseout', 'mouseenter', 'mouseleave', 'contextmenu'
+    ],
+    keyboardEvents: [
+        'keydown', 'keyup', 'keypress'
+    ],
+    touchEvents: [
+        'touchstart', 'touchmove', 'touchend', 'touchcancel'
+    ],
+    wheelEvents: [
+        'wheel', 'mousewheel', 'DOMMouseScroll'
+    ],
+    focusEvents: [
+        'focus', 'blur', 'focusin', 'focusout'
+    ],
+    formEvents: [
+        'submit', 'change', 'input', 'reset'
+    ],
+    clipboardEvents: [
+        'copy', 'cut', 'paste'
+    ],
+    dragEvents: [
+        'drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop'
+    ]
+};
+
+// 多语言翻译
+export const translations = {
+    zh: {
+        title: '⚙️ 事件屏蔽配置',
+        mouseEvents: '鼠标事件',
+        keyboardEvents: '键盘事件',
+        touchEvents: '触摸事件',
+        wheelEvents: '滚轮事件',
+        focusEvents: '焦点事件',
+        formEvents: '表单事件',
+        clipboardEvents: '剪贴板事件',
+        dragEvents: '拖拽事件',
+        cancel: '取消',
+        save: '💾 保存配置',
+        mousedown: '鼠标按下',
+        mouseup: '鼠标抬起',
+        mousemove: '鼠标移动',
+        mouseover: '鼠标悬停',
+        mouseout: '鼠标移出',
+        mouseenter: '鼠标进入',
+        mouseleave: '鼠标离开',
+        contextmenu: '右键菜单',
+        keydown: '按键按下',
+        keyup: '按键抬起',
+        keypress: '按键输入',
+        touchstart: '触摸开始',
+        touchmove: '触摸移动',
+        touchend: '触摸结束',
+        touchcancel: '触摸取消',
+        wheel: '滚轮滚动',
+        mousewheel: '鼠标滚轮',
+        DOMMouseScroll: 'DOM滚轮',
+        focus: '获得焦点',
+        blur: '失去焦点',
+        focusin: '焦点进入',
+        focusout: '焦点离开',
+        submit: '表单提交',
+        change: '内容改变',
+        input: '输入内容',
+        reset: '表单重置',
+        copy: '复制',
+        cut: '剪切',
+        paste: '粘贴',
+        drag: '拖拽中',
+        dragstart: '开始拖拽',
+        dragend: '结束拖拽',
+        dragover: '拖拽经过',
+        dragenter: '拖拽进入',
+        dragleave: '拖拽离开',
+        drop: '放置',
+        menuCommand: '配置事件屏蔽'
+    },
+    en: {
+        title: '⚙️ Event Blocker Config',
+        mouseEvents: 'Mouse Events',
+        keyboardEvents: 'Keyboard Events',
+        touchEvents: 'Touch Events',
+        wheelEvents: 'Wheel Events',
+        focusEvents: 'Focus Events',
+        formEvents: 'Form Events',
+        clipboardEvents: 'Clipboard Events',
+        dragEvents: 'Drag Events',
+        cancel: 'Cancel',
+        save: '💾 Save Config',
+        mousedown: 'Mouse Down',
+        mouseup: 'Mouse Up',
+        mousemove: 'Mouse Move',
+        mouseover: 'Mouse Over',
+        mouseout: 'Mouse Out',
+        mouseenter: 'Mouse Enter',
+        mouseleave: 'Mouse Leave',
+        contextmenu: 'Context Menu',
+        keydown: 'Key Down',
+        keyup: 'Key Up',
+        keypress: 'Key Press',
+        touchstart: 'Touch Start',
+        touchmove: 'Touch Move',
+        touchend: 'Touch End',
+        touchcancel: 'Touch Cancel',
+        wheel: 'Wheel',
+        mousewheel: 'Mouse Wheel',
+        DOMMouseScroll: 'DOM Mouse Scroll',
+        focus: 'Focus',
+        blur: 'Blur',
+        focusin: 'Focus In',
+        focusout: 'Focus Out',
+        submit: 'Submit',
+        change: 'Change',
+        input: 'Input',
+        reset: 'Reset',
+        copy: 'Copy',
+        cut: 'Cut',
+        paste: 'Paste',
+        drag: 'Drag',
+        dragstart: 'Drag Start',
+        dragend: 'Drag End',
+        dragover: 'Drag Over',
+        dragenter: 'Drag Enter',
+        dragleave: 'Drag Leave',
+        drop: 'Drop',
+        menuCommand: 'Configure Event Blocker'
+    }
+};
+
+// 事件类型图标
+export const eventTypeIcons = {
+    mouseEvents: '🖱️',
+    keyboardEvents: '⌨️',
+    touchEvents: '👆',
+    wheelEvents: '🔄',
+    focusEvents: '👁️',
+    formEvents: '📝',
+    clipboardEvents: '📋',
+    dragEvents: '🎯'
+};

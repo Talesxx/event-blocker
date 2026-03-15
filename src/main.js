@@ -1,0 +1,74 @@
+import { events } from './constants/events';
+import { generateDefaultConfig, saveConfig } from './utils/config';
+import { toggleLanguage, t } from './utils/i18n';
+import { blockEvents } from './core/eventHandler';
+import { createConfigWindow, closeConfigWindow } from './components/configWindow';
+
+(function() {
+    'use strict';
+
+    // 确保GM_*函数存在（用于开发测试）
+    if (typeof GM_getValue === 'undefined') {
+        // 模拟GM_getValue函数
+        window.GM_getValue = function(key, defaultValue) {
+            const value = localStorage.getItem(key);
+            return value ? JSON.parse(value) : defaultValue;
+        };
+    }
+    
+    if (typeof GM_setValue === 'undefined') {
+        // 模拟GM_setValue函数
+        window.GM_setValue = function(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        };
+    }
+    
+    if (typeof GM_registerMenuCommand === 'undefined') {
+        // 模拟GM_registerMenuCommand函数
+        window.GM_registerMenuCommand = function(name, callback) {
+            console.log('GM_registerMenuCommand:', name);
+        };
+    }
+
+    // 获取配置
+    let config = GM_getValue('eventBlockerConfig', generateDefaultConfig());
+    
+    // 语言配置
+    let currentLanguage = GM_getValue('eventBlockerLanguage', 'zh');
+
+    // 注册菜单命令
+    GM_registerMenuCommand(t(currentLanguage, 'menuCommand'), function() {
+        const { langButton, saveButton } = createConfigWindow(currentLanguage, config);
+        
+        // 绑定语言切换事件
+        langButton.onclick = function() {
+            currentLanguage = toggleLanguage(currentLanguage, function() {
+                createConfigWindow(currentLanguage, config);
+            }, closeConfigWindow);
+        };
+        
+        // 绑定保存配置事件
+        saveButton.onclick = function() {
+            saveConfig(config);
+        };
+    });
+
+    // 立即执行一次事件屏蔽
+    blockEvents(config);
+
+    // 监听DOMContentLoaded事件，确保在DOM加载完成后再次执行
+    document.addEventListener('DOMContentLoaded', function() {
+        blockEvents(config);
+    });
+
+    // 监听load事件，确保在所有资源加载完成后再次执行
+    window.addEventListener('load', function() {
+        blockEvents(config);
+    });
+
+    // 暴露全局变量，用于测试页面调用
+    window.createConfigWindow = createConfigWindow;
+    window.currentLanguage = currentLanguage;
+    window.config = config;
+
+})();

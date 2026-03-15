@@ -1,0 +1,22 @@
+{
+  "name": "event-blocker",
+  "version": "1.5.0",
+  "description": "屏蔽浏览器中的鼠标、键盘等事件，可配置",
+  "main": "dist/event-blocker.user.js",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
+  },
+  "devDependencies": {
+    "rollup": "^3.29.4",
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.1"
+  },
+  "keywords": [
+    "userscript",
+    "event-blocker",
+    "tampermonkey"
+  ],
+  "author": "You",
+  "license": "MIT"
+}
