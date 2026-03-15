@@ -49,7 +49,7 @@ import { initEnhancedEventBlocker, enableEnhancedMode, disableEnhancedMode } fro
                     }
                 });
             }
-            generalUnblockEvents(config);
+            generalBlockEvents(config);
             // 初始化增强模式事件阻止器
             initEnhancedEventBlocker();
             enableEnhancedMode(enabledTypes);
