@@ -1,6 +1,7 @@
 import { events, eventTypeIcons } from '../constants/events';
 import { t } from '../utils/i18n';
 import { setConfigWindowElements } from '../core/eventHandler';
+import { setEnhancedModeConfigWindowElements } from '../core/enhancedEventBlocker';
 
 // 配置窗口元素
 let configWindow = null;
@@ -75,8 +76,94 @@ export function createConfigWindow(currentLanguage, config) {
         font-size: 24px;
         font-weight: 600;
         text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        text-align: center;
     `;
     header.appendChild(title);
+
+    // 创建增强模式开关
+    const enhancedModeContainer = document.createElement('div');
+    enhancedModeContainer.style.cssText = `
+        position: absolute;
+        left: 25px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    
+    const enhancedModeLabel = document.createElement('span');
+    enhancedModeLabel.textContent = t(currentLanguage, 'enhancedMode');
+    enhancedModeLabel.style.cssText = `
+        color: white;
+        font-size: 14px;
+        font-weight: 500;
+    `;
+    
+    const enhancedModeSwitch = document.createElement('label');
+    enhancedModeSwitch.style.cssText = `
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        cursor: pointer;
+    `;
+    
+    const enhancedModeInput = document.createElement('input');
+    enhancedModeInput.type = 'checkbox';
+    enhancedModeInput.id = 'enhanced-mode-toggle';
+    enhancedModeInput.checked = config.enhancedMode || false;
+    enhancedModeInput.style.cssText = `
+        opacity: 0;
+        width: 0;
+        height: 0;
+    `;
+    
+    const enhancedModeSlider = document.createElement('span');
+    enhancedModeSlider.style.cssText = `
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: ${config.enhancedMode ? '#4CAF50' : '#ccc'};
+        transition: .3s;
+        border-radius: 24px;
+    `;
+    
+    const enhancedModeKnob = document.createElement('span');
+    enhancedModeKnob.style.cssText = `
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+        transform: ${config.enhancedMode ? 'translateX(20px)' : 'translateX(0)'};
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    `;
+    
+    enhancedModeSlider.appendChild(enhancedModeKnob);
+    enhancedModeSwitch.appendChild(enhancedModeInput);
+    enhancedModeSwitch.appendChild(enhancedModeSlider);
+    
+    // 切换事件
+    enhancedModeInput.addEventListener('change', function(e) {
+        const isEnabled = e.target.checked;
+        config.enhancedMode = isEnabled;
+        
+        // 更新UI
+        enhancedModeSlider.style.backgroundColor = isEnabled ? '#4CAF50' : '#ccc';
+        enhancedModeKnob.style.transform = isEnabled ? 'translateX(20px)' : 'translateX(0)';
+    });
+    
+    enhancedModeContainer.appendChild(enhancedModeLabel);
+    enhancedModeContainer.appendChild(enhancedModeSwitch);
+    header.appendChild(enhancedModeContainer);
 
     // 创建语言切换按钮
     const langButton = document.createElement('button');
@@ -374,6 +461,9 @@ export function createConfigWindow(currentLanguage, config) {
 
     // 设置配置窗口元素到事件处理模块
     setConfigWindowElements(configWindow, overlay);
+    
+    // 设置配置窗口元素到增强模式模块
+    setEnhancedModeConfigWindowElements(configWindow, overlay);
 
     return {
         configWindow,

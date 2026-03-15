@@ -3,6 +3,7 @@ import { generateDefaultConfig, saveConfig } from './utils/config';
 import { toggleLanguage, t } from './utils/i18n';
 import { blockEvents } from './core/eventHandler';
 import { createConfigWindow, closeConfigWindow } from './components/configWindow';
+import { initEnhancedEventBlocker, enableEnhancedMode, disableEnhancedMode } from './core/enhancedEventBlocker';
 
 (function() {
     'use strict';
@@ -36,6 +37,26 @@ import { createConfigWindow, closeConfigWindow } from './components/configWindow
     // 语言配置
     let currentLanguage = GM_getValue('eventBlockerLanguage', 'zh');
 
+    // 初始化增强模式事件阻止器
+    initEnhancedEventBlocker();
+
+    // 应用增强模式
+    function applyEnhancedMode() {
+        if (config.enhancedMode) {
+            const enabledTypes = [];
+            for (const [eventType, eventList] of Object.entries(events)) {
+                eventList.forEach(eventName => {
+                    if (config[eventType] && config[eventType][eventName]) {
+                        enabledTypes.push(eventName);
+                    }
+                });
+            }
+            enableEnhancedMode(enabledTypes);
+        } else {
+            disableEnhancedMode();
+        }
+    }
+
     // 注册菜单命令
     GM_registerMenuCommand(t(currentLanguage, 'menuCommand'), function() {
         const { langButton, saveButton } = createConfigWindow(currentLanguage, config);
@@ -50,20 +71,24 @@ import { createConfigWindow, closeConfigWindow } from './components/configWindow
         // 绑定保存配置事件
         saveButton.onclick = function() {
             saveConfig(config);
+            applyEnhancedMode();
         };
     });
 
     // 立即执行一次事件屏蔽
     blockEvents(config);
+    applyEnhancedMode();
 
     // 监听DOMContentLoaded事件，确保在DOM加载完成后再次执行
     document.addEventListener('DOMContentLoaded', function() {
         blockEvents(config);
+        applyEnhancedMode();
     });
 
     // 监听load事件，确保在所有资源加载完成后再次执行
     window.addEventListener('load', function() {
         blockEvents(config);
+        applyEnhancedMode();
     });
 
     // 暴露全局变量，用于测试页面调用

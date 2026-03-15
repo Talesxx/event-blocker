@@ -80,7 +80,11 @@ export const translations = {
         dragenter: '拖拽进入',
         dragleave: '拖拽离开',
         drop: '放置',
-        menuCommand: '配置事件屏蔽'
+        menuCommand: '配置事件屏蔽',
+        enhancedMode: '增强模式',
+        enhancedModeDescription: '通过重写 addEventListener 提供更强大的事件阻止能力',
+        enhancedModeEnabled: '增强模式已启用',
+        enhancedModeDisabled: '增强模式已禁用'
     },
     en: {
         title: '⚙️ Event Blocker Config',
@@ -130,7 +134,11 @@ export const translations = {
         dragenter: 'Drag Enter',
         dragleave: 'Drag Leave',
         drop: 'Drop',
-        menuCommand: 'Configure Event Blocker'
+        menuCommand: 'Configure Event Blocker',
+        enhancedMode: 'Enhanced Mode',
+        enhancedModeDescription: 'Provide stronger event blocking by overriding addEventListener',
+        enhancedModeEnabled: 'Enhanced Mode Enabled',
+        enhancedModeDisabled: 'Enhanced Mode Disabled'
     }
 };
 
