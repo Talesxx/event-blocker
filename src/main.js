@@ -1,7 +1,7 @@
 import { events } from './constants/events';
 import { generateDefaultConfig, saveConfig } from './utils/config';
 import { toggleLanguage, t } from './utils/i18n';
-import { blockEvents } from './core/eventHandler';
+import { generalBlockEvents, generalUnblockEvents } from './core/eventHandler';
 import { createConfigWindow, closeConfigWindow } from './components/configWindow';
 import { initEnhancedEventBlocker, enableEnhancedMode, disableEnhancedMode } from './core/enhancedEventBlocker';
 
@@ -49,11 +49,13 @@ import { initEnhancedEventBlocker, enableEnhancedMode, disableEnhancedMode } fro
                     }
                 });
             }
+            generalUnblockEvents(config);
             // 初始化增强模式事件阻止器
             initEnhancedEventBlocker();
             enableEnhancedMode(enabledTypes);
         } else {
             disableEnhancedMode();
+            generalBlockEvents(config);
         }
     }
 
@@ -75,19 +77,15 @@ import { initEnhancedEventBlocker, enableEnhancedMode, disableEnhancedMode } fro
         };
     });
 
-    // 立即执行一次事件屏蔽
-    blockEvents(config);
     applyEnhancedMode();
 
     // 监听DOMContentLoaded事件，确保在DOM加载完成后再次执行
     document.addEventListener('DOMContentLoaded', function() {
-        blockEvents(config);
         applyEnhancedMode();
     });
 
     // 监听load事件，确保在所有资源加载完成后再次执行
     window.addEventListener('load', function() {
-        blockEvents(config);
         applyEnhancedMode();
     });
 
