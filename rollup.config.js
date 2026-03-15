@@ -5,7 +5,7 @@ import commonjs from '@rollup/plugin-commonjs';
 const userScriptHeader = `// ==UserScript==
 // @name         事件屏蔽器
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      1.7
 // @description  屏蔽浏览器中的鼠标、键盘等事件，可配置
 // @author       Tales
 // @license      MIT
