@@ -15,7 +15,7 @@ function blockEvent(e) {
         target = target.parentElement;
     }
 
-    e.preventDefault();
+    // e.preventDefault(); // 不阻止默认行为
     e.stopPropagation();
     return false;
 }
