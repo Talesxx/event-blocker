@@ -253,6 +253,26 @@
 
     // 创建配置窗口
     function createConfigWindow() {
+        // 检查配置窗口是否已经存在
+        if (configWindow && overlay) {
+            // 窗口已存在，直接返回
+            return;
+        }
+        
+        // 检查页面上是否已经存在配置窗口元素
+        const existingWindow = document.getElementById('event-blocker-config-window');
+        const existingOverlay = document.getElementById('event-blocker-overlay');
+        
+        if (existingWindow || existingOverlay) {
+            // 清理已存在的元素
+            if (existingWindow) {
+                document.body.removeChild(existingWindow);
+            }
+            if (existingOverlay) {
+                document.body.removeChild(existingOverlay);
+            }
+        }
+        
         // 创建配置窗口
         configWindow = document.createElement('div');
         configWindow.id = 'event-blocker-config-window';
