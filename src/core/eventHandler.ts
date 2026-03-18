@@ -40,7 +40,7 @@ export function generalBlockEvents(config: EventConfig): void {
 }
 
 // 取消屏蔽事件的函数
-export function generalUnblockEvents(config: EventConfig): void {
+export function generalUnblockEvents(): void {
     if (!initStatus) return;
     initStatus = false;
     // 遍历所有事件类型
@@ -48,10 +48,10 @@ export function generalUnblockEvents(config: EventConfig): void {
         // 遍历该类型下的所有事件
         eventList.forEach(eventName => {
             // 检查该事件是否被配置为屏蔽
-            if (config[eventType] && config[eventType][eventName]) {
+            // if (config[eventType] && config[eventType][eventName]) {
                 // 移除捕获阶段的监听器
                 document.removeEventListener(eventName, blockEvent, true);
-            }
+            // }
         });
     }
 }

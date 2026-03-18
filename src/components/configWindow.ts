@@ -31,14 +31,19 @@ function applyEnhancedMode(config: EventConfig): void {
                 }
             });
         }
-        generalUnblockEvents(config);
+        generalUnblockEvents();
         generalBlockEvents(config);
         enableEnhancedMode(enabledTypes);
     } else {
         disableEnhancedMode();
-        generalUnblockEvents(config);
+        generalUnblockEvents();
         generalBlockEvents(config);
     }
+}
+// 移除禁用事件
+function removeDisabledEvents(): void {
+    disableEnhancedMode();
+    generalUnblockEvents();
 }
 
 // 创建配置窗口
@@ -504,6 +509,7 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
 
     // 绑定保存配置事件
     saveButton.onclick = function () {
+        removeDisabledEvents();
         saveConfig(config);
         applyEnhancedMode(config);
         closeConfigWindow();
