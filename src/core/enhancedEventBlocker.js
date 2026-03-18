@@ -50,7 +50,7 @@ function createInterceptedHandler(originalHandler, eventType) {
 
         // 检查事件类型是否被阻止
         if (isBlocked) {
-            event.preventDefault();
+            // event.preventDefault();
             event.stopPropagation();
             event.stopImmediatePropagation();
             return false;
