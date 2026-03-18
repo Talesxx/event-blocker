@@ -2,7 +2,7 @@ import { events, eventTypeIcons } from '../constants/events';
 import { t, toggleLanguage, getCurrentLanguage } from '../utils/i18n';
 import { setConfigWindowElements } from '../core/eventHandler';
 import { setEnhancedModeConfigWindowElements } from '../core/enhancedEventBlocker';
-import { saveConfig, EventConfig } from '../utils/config';
+import { saveConfig, EventConfig, getCurrentDomain, getSubdomain, getAllConfigs, saveGlobalConfig, saveDomainConfig, deleteDomainConfig, getEffectiveConfig } from '../utils/config';
 import { generalBlockEvents, generalUnblockEvents } from '../core/eventHandler';
 import { enableEnhancedMode, disableEnhancedMode } from '../core/enhancedEventBlocker';
 
@@ -22,22 +22,23 @@ export function closeConfigWindow(): void {
 
 // 应用增强模式
 function applyEnhancedMode(config: EventConfig): void {
-    if (config.enhancedMode) {
+    const effectiveConfig = getEffectiveConfig();
+    if (effectiveConfig.enhancedMode) {
         const enabledTypes: string[] = [];
         for (const [eventType, eventList] of Object.entries(events)) {
             eventList.forEach(eventName => {
-                if (config[eventType] && config[eventType][eventName]) {
+                if (effectiveConfig[eventType] && effectiveConfig[eventType][eventName]) {
                     enabledTypes.push(eventName);
                 }
             });
         }
         generalUnblockEvents();
-        generalBlockEvents(config);
+        generalBlockEvents(effectiveConfig);
         enableEnhancedMode(enabledTypes);
     } else {
         disableEnhancedMode();
         generalUnblockEvents();
-        generalBlockEvents(config);
+        generalBlockEvents(effectiveConfig);
     }
 }
 // 移除禁用事件
@@ -49,6 +50,8 @@ function removeDisabledEvents(): void {
 // 创建配置窗口
 export function createConfigWindow(config: EventConfig): { configWindow: HTMLElement; overlay: HTMLElement } | undefined {
     const currentLanguage = getCurrentLanguage();
+    const effectiveConfig = getEffectiveConfig();
+    config = effectiveConfig;
     // 检查配置窗口是否已经存在
     if (configWindow && overlay) {
         // 窗口已存在，直接返回
@@ -82,9 +85,9 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
         padding: 0;
         z-index: 9999;
         box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        min-width: 500px;
-        max-width: 85vw;
-        max-height: 85vh;
+        min-width: 700px;
+        max-width: 90vw;
+        max-height: 90vh;
         overflow: hidden;
         opacity: 0;
         transition: all 0.3s ease;
@@ -142,7 +145,7 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
     const enhancedModeInput = document.createElement('input');
     enhancedModeInput.type = 'checkbox';
     enhancedModeInput.id = 'enhanced-mode-toggle';
-    enhancedModeInput.checked = config.enhancedMode || false;
+    enhancedModeInput.checked = effectiveConfig.enhancedMode || false;
     enhancedModeInput.style.cssText = `
         opacity: 0;
         width: 0;
@@ -157,7 +160,7 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: ${config.enhancedMode ? '#4CAF50' : '#ccc'};
+        background-color: ${effectiveConfig.enhancedMode ? '#4CAF50' : '#ccc'};
         transition: .3s;
         border-radius: 24px;
     `;
@@ -173,7 +176,7 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
         background-color: white;
         transition: .3s;
         border-radius: 50%;
-        transform: ${config.enhancedMode ? 'translateX(20px)' : 'translateX(0)'};
+        transform: ${effectiveConfig.enhancedMode ? 'translateX(20px)' : 'translateX(0)'};
         box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     `;
 
@@ -233,6 +236,94 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
         overflow-y: auto;
     `;
 
+    const currentDomain = getCurrentDomain();
+    const allConfigs = getAllConfigs();
+    
+    let configType = 'global';
+    let configSource = t(currentLanguage, 'globalConfig');
+    
+    const existingDomainConfig = Object.keys(allConfigs.domains).find(key => {
+        const domainConfig = allConfigs.domains[key];
+        if (domainConfig.type === 'domain') {
+            if (key === currentDomain) {
+                configType = 'domain';
+                configSource = `${t(currentLanguage, 'domainTypeConfig')}: ${key}`;
+                return true;
+            }
+        } else {
+            try {
+                const regex = new RegExp(key);
+                if (regex.test(currentDomain)) {
+                    configType = 'regex';
+                    configSource = `${t(currentLanguage, 'regexTypeConfig')}: ${key}`;
+                    return true;
+                }
+            } catch (e) {
+                return false;
+            }
+        }
+        return false;
+    });
+
+    const domainSection = document.createElement('div');
+    domainSection.style.cssText = `
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #e9ecef;
+    `;
+
+    const domainTitle = document.createElement('h3');
+    domainTitle.textContent = t(currentLanguage, 'currentConfig');
+    domainTitle.style.cssText = `
+        margin: 0 0 15px 0;
+        color: #495057;
+        font-size: 16px;
+        font-weight: 600;
+    `;
+    domainSection.appendChild(domainTitle);
+
+    const infoContainer = document.createElement('div');
+    infoContainer.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    `;
+
+    const currentTypeInfo = document.createElement('div');
+    currentTypeInfo.style.cssText = `
+        font-size: 14px;
+        color: #495057;
+    `;
+    currentTypeInfo.innerHTML = `<strong>${t(currentLanguage, 'currentType')}:</strong> ${configSource}`;
+    infoContainer.appendChild(currentTypeInfo);
+
+    const currentUrlInfo = document.createElement('div');
+    currentUrlInfo.style.cssText = `
+        font-size: 14px;
+        color: #495057;
+    `;
+    currentUrlInfo.innerHTML = `<strong>${t(currentLanguage, 'currentUrl')}:</strong> ${currentDomain}`;
+    infoContainer.appendChild(currentUrlInfo);
+
+    domainSection.appendChild(infoContainer);
+
+    const priorityInfo = document.createElement('div');
+    priorityInfo.textContent = t(currentLanguage, 'configPriority');
+    priorityInfo.style.cssText = `
+        margin-top: 12px;
+        padding: 8px 12px;
+        background: #e7f3ff;
+        border-left: 3px solid #007bff;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #0056b3;
+    `;
+    domainSection.appendChild(priorityInfo);
+
+    content.appendChild(domainSection);
+
     // 创建配置选项
     for (const [eventType, eventList] of Object.entries(events)) {
         // 创建事件类型卡片
@@ -285,7 +376,7 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.id = `event-${eventType}-${eventName}`;
-            checkbox.checked = config[eventType] && config[eventType][eventName] || false;
+            checkbox.checked = effectiveConfig[eventType] && effectiveConfig[eventType][eventName] || false;
             checkbox.style.cssText = `
                 display: none;
             `;
@@ -409,10 +500,9 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
     };
     cancelButton.onclick = closeConfigWindow;
 
-    // 创建保存按钮
-    const saveButton = document.createElement('button');
-    saveButton.textContent = t(currentLanguage, 'save');
-    saveButton.style.cssText = `
+    const saveGlobalButton = document.createElement('button');
+    saveGlobalButton.textContent = t(currentLanguage, 'saveGlobal');
+    saveGlobalButton.style.cssText = `
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
@@ -424,17 +514,73 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         transition: all 0.2s ease;
     `;
-    saveButton.onmouseover = function (this: any) {
+    saveGlobalButton.onmouseover = function (this: any) {
         this.style.transform = 'translateY(-2px)';
         this.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.5)';
     };
-    saveButton.onmouseout = function (this: any) {
+    saveGlobalButton.onmouseout = function (this: any) {
         this.style.transform = 'translateY(0)';
         this.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
     };
 
+    const savePageButton = document.createElement('button');
+    savePageButton.textContent = t(currentLanguage, 'savePage');
+    savePageButton.style.cssText = `
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        transition: all 0.2s ease;
+    `;
+    savePageButton.onmouseover = function (this: any) {
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 6px 16px rgba(40, 167, 69, 0.5)';
+    };
+    savePageButton.onmouseout = function (this: any) {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '0 4px 12px rgba(40, 167, 69, 0.4)';
+    };
+
     buttonContainer.appendChild(cancelButton);
-    buttonContainer.appendChild(saveButton);
+    buttonContainer.appendChild(saveGlobalButton);
+    buttonContainer.appendChild(savePageButton);
+    
+    if (existingDomainConfig) {
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = t(currentLanguage, 'deleteConfig');
+        deleteButton.style.cssText = `
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+            transition: all 0.2s ease;
+        `;
+        deleteButton.onmouseover = function (this: any) {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 6px 16px rgba(220, 53, 69, 0.5)';
+        };
+        deleteButton.onmouseout = function (this: any) {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.4)';
+        };
+        deleteButton.onclick = function () {
+            if (confirm('确定要删除此配置吗？')) {
+                deleteDomainConfig(existingDomainConfig);
+                closeConfigWindow();
+            }
+        };
+        buttonContainer.appendChild(deleteButton);
+    }
 
     // 组装窗口
     configWindow.appendChild(header);
@@ -503,14 +649,24 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
     langButton.onclick = function () {
         toggleLanguage(currentLanguage);
         closeConfigWindow();
-        // 更新配置窗口中的文本
-        createConfigWindow(config);
+        createConfigWindow(effectiveConfig);
     };
 
-    // 绑定保存配置事件
-    saveButton.onclick = function () {
+    saveGlobalButton.onclick = function () {
         removeDisabledEvents();
         saveConfig(config);
+        saveGlobalConfig(config);
+        applyEnhancedMode(config);
+        closeConfigWindow();
+    };
+
+    savePageButton.onclick = function () {
+        const domainKey = currentDomain;
+        const configType: 'domain' = 'domain';
+        
+        removeDisabledEvents();
+        saveConfig(config);
+        saveDomainConfig(domainKey, config, configType);
         applyEnhancedMode(config);
         closeConfigWindow();
     };

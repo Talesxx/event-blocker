@@ -84,7 +84,25 @@ export const translations = {
         enhancedMode: '增强模式',
         enhancedModeDescription: '通过重写 addEventListener 提供更强大的事件阻止能力',
         enhancedModeEnabled: '增强模式已启用',
-        enhancedModeDisabled: '增强模式已禁用'
+        enhancedModeDisabled: '增强模式已禁用',
+        saveGlobal: '💾 保存全局配置',
+        savePage: '🌐 保存网页配置',
+        domainConfig: '域名配置',
+        regexConfig: '正则配置',
+        currentDomain: '当前域名',
+        domainInput: '域名（如：example.com）',
+        regexInput: '正则表达式（如：.*\\.example\\.com）',
+        configType: '配置类型',
+        domainType: '域名匹配',
+        regexType: '正则匹配',
+        deleteConfig: '删除配置',
+        configPriority: '配置优先级：完整域名 > 正则配置 > 全局配置',
+        currentConfig: '当前配置',
+        currentType: '当前生效类型',
+        currentUrl: '当前网址',
+        globalConfig: '全局配置',
+        domainTypeConfig: '域名配置',
+        regexTypeConfig: '正则配置'
     },
     en: {
         title: '⚙️ Event Blocker Config',
@@ -138,7 +156,25 @@ export const translations = {
         enhancedMode: 'Enhanced Mode',
         enhancedModeDescription: 'Provide stronger event blocking by overriding addEventListener',
         enhancedModeEnabled: 'Enhanced Mode Enabled',
-        enhancedModeDisabled: 'Enhanced Mode Disabled'
+        enhancedModeDisabled: 'Enhanced Mode Disabled',
+        saveGlobal: '💾 Save Global Config',
+        savePage: '🌐 Save Page Config',
+        domainConfig: 'Domain Config',
+        regexConfig: 'Regex Config',
+        currentDomain: 'Current Domain',
+        domainInput: 'Domain (e.g., example.com)',
+        regexInput: 'Regex (e.g., .*\\.example\\.com)',
+        configType: 'Config Type',
+        domainType: 'Domain Match',
+        regexType: 'Regex Match',
+        deleteConfig: 'Delete Config',
+        configPriority: 'Priority: Full Domain > Regex > Global',
+        currentConfig: 'Current Config',
+        currentType: 'Current Type',
+        currentUrl: 'Current URL',
+        globalConfig: 'Global Config',
+        domainTypeConfig: 'Domain Config',
+        regexTypeConfig: 'Regex Config'
     }
 };
 

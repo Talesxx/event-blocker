@@ -1,5 +1,5 @@
 import { events } from './constants/events';
-import { generateDefaultConfig, EventConfig } from './utils/config';
+import { generateDefaultConfig, EventConfig, getEffectiveConfig } from './utils/config';
 import { getCurrentLanguage, t } from './utils/i18n';
 import { generalBlockEvents, generalUnblockEvents } from './core/eventHandler';
 import { createConfigWindow, closeConfigWindow } from './components/configWindow';
@@ -48,12 +48,11 @@ declare global {
         };
     }
 
-    // 获取配置
-    let config: EventConfig = GM_getValue('eventBlockerConfig', generateDefaultConfig());
+    let config: EventConfig = getEffectiveConfig();
     const currentLanguage = getCurrentLanguage();
 
-    // 应用增强模式
     function applyEnhancedMode(): void {
+        config = getEffectiveConfig();
         if (config.enhancedMode) {
             const enabledTypes: string[] = [];
             for (const [eventType, eventList] of Object.entries(events)) {
@@ -64,7 +63,6 @@ declare global {
                 });
             }
             generalBlockEvents(config);
-            // 初始化增强模式事件阻止器
             initEnhancedEventBlocker();
             enableEnhancedMode(enabledTypes);
         } else {
