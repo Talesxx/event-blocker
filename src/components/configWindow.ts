@@ -499,6 +499,37 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
         this.style.borderColor = '#dee2e6';
     };
     cancelButton.onclick = closeConfigWindow;
+       if (existingDomainConfig) {
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = t(currentLanguage, 'deleteConfig');
+        deleteButton.style.cssText = `
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+            transition: all 0.2s ease;
+        `;
+        deleteButton.onmouseover = function (this: any) {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 6px 16px rgba(220, 53, 69, 0.5)';
+        };
+        deleteButton.onmouseout = function (this: any) {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.4)';
+        };
+        deleteButton.onclick = function () {
+            if (confirm('确定要删除此配置吗？')) {
+                deleteDomainConfig(existingDomainConfig);
+                closeConfigWindow();
+            }
+        };
+        buttonContainer.appendChild(deleteButton);
+    }
 
     const saveGlobalButton = document.createElement('button');
     saveGlobalButton.textContent = t(currentLanguage, 'saveGlobal');
@@ -550,37 +581,7 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
     buttonContainer.appendChild(saveGlobalButton);
     buttonContainer.appendChild(savePageButton);
     
-    if (existingDomainConfig) {
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = t(currentLanguage, 'deleteConfig');
-        deleteButton.style.cssText = `
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
-            transition: all 0.2s ease;
-        `;
-        deleteButton.onmouseover = function (this: any) {
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 6px 16px rgba(220, 53, 69, 0.5)';
-        };
-        deleteButton.onmouseout = function (this: any) {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.4)';
-        };
-        deleteButton.onclick = function () {
-            if (confirm('确定要删除此配置吗？')) {
-                deleteDomainConfig(existingDomainConfig);
-                closeConfigWindow();
-            }
-        };
-        buttonContainer.appendChild(deleteButton);
-    }
+ 
 
     // 组装窗口
     configWindow.appendChild(header);
