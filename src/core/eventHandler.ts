@@ -1,18 +1,19 @@
 import { events } from '../constants/events';
+import { EventConfig } from '../utils/config';
 
 // 配置窗口元素
-let configWindow = null;
-let overlay = null;
+let configWindow: HTMLElement | null = null;
+let overlay: HTMLElement | null = null;
 
 // 屏蔽事件的函数
-function blockEvent(e) {
+function blockEvent(e: Event): boolean {
     // 检查事件目标是否是配置窗口或其子元素
-    let target = e.target;
+    let target: EventTarget | null = e.target;
     while (target) {
         if (target === configWindow || target === overlay) {
-            return;
+            return false;
         }
-        target = target.parentElement;
+        target = (target as HTMLElement).parentElement;
     }
 
     // e.preventDefault(); // 不阻止默认行为
@@ -22,7 +23,7 @@ function blockEvent(e) {
 
 let initStatus = false;
 // 屏蔽事件的函数
-export function generalBlockEvents(config) {
+export function generalBlockEvents(config: EventConfig): void {
     if (initStatus) return;
     initStatus = true;
     // 遍历所有事件类型
@@ -39,7 +40,7 @@ export function generalBlockEvents(config) {
 }
 
 // 取消屏蔽事件的函数
-export function generalUnblockEvents(config) {
+export function generalUnblockEvents(config: EventConfig): void {
     if (!initStatus) return;
     initStatus = false;
     // 遍历所有事件类型
@@ -56,12 +57,12 @@ export function generalUnblockEvents(config) {
 }
 
 // 设置配置窗口元素
-export function setConfigWindowElements(window, overlayElement) {
+export function setConfigWindowElements(window: HTMLElement, overlayElement: HTMLElement): void {
     configWindow = window;
     overlay = overlayElement;
 }
 
 // 获取配置窗口元素
-export function getConfigWindowElements() {
+export function getConfigWindowElements(): { configWindow: HTMLElement | null; overlay: HTMLElement | null } {
     return { configWindow, overlay };
 }

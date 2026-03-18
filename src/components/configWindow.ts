@@ -1,15 +1,17 @@
 import { events, eventTypeIcons } from '../constants/events';
-import { t } from '../utils/i18n';
+import { t, toggleLanguage, getCurrentLanguage } from '../utils/i18n';
 import { setConfigWindowElements } from '../core/eventHandler';
 import { setEnhancedModeConfigWindowElements } from '../core/enhancedEventBlocker';
-import { toggleLanguage, getCurrentLanguage } from '../utils/i18n';
+import { saveConfig, EventConfig } from '../utils/config';
+import { generalBlockEvents, generalUnblockEvents } from '../core/eventHandler';
+import { enableEnhancedMode, disableEnhancedMode } from '../core/enhancedEventBlocker';
 
 // 配置窗口元素
-let configWindow = null;
-let overlay = null;
+let configWindow: HTMLElement | null = null;
+let overlay: HTMLElement | null = null;
 
 // 关闭配置窗口的函数
-export function closeConfigWindow() {
+export function closeConfigWindow(): void {
     if (configWindow && overlay) {
         document.body.removeChild(configWindow);
         document.body.removeChild(overlay);
@@ -18,8 +20,29 @@ export function closeConfigWindow() {
     }
 }
 
+// 应用增强模式
+function applyEnhancedMode(config: EventConfig): void {
+    if (config.enhancedMode) {
+        const enabledTypes: string[] = [];
+        for (const [eventType, eventList] of Object.entries(events)) {
+            eventList.forEach(eventName => {
+                if (config[eventType] && config[eventType][eventName]) {
+                    enabledTypes.push(eventName);
+                }
+            });
+        }
+        generalUnblockEvents(config);
+        generalBlockEvents(config);
+        enableEnhancedMode(enabledTypes);
+    } else {
+        disableEnhancedMode();
+        generalUnblockEvents(config);
+        generalBlockEvents(config);
+    }
+}
+
 // 创建配置窗口
-export function createConfigWindow(config) {
+export function createConfigWindow(config: EventConfig): { configWindow: HTMLElement; overlay: HTMLElement } | undefined {
     const currentLanguage = getCurrentLanguage();
     // 检查配置窗口是否已经存在
     if (configWindow && overlay) {
@@ -154,8 +177,8 @@ export function createConfigWindow(config) {
     enhancedModeSwitch.appendChild(enhancedModeSlider);
 
     // 切换事件
-    enhancedModeInput.addEventListener('change', function (e) {
-        const isEnabled = e.target.checked;
+    enhancedModeInput.addEventListener('change', function (e: Event) {
+        const isEnabled = (e.target as HTMLInputElement).checked;
         config.enhancedMode = isEnabled;
 
         // 更新UI
@@ -185,11 +208,11 @@ export function createConfigWindow(config) {
         font-weight: 500;
         transition: all 0.2s ease;
     `;
-    langButton.onmouseover = function () {
+    langButton.onmouseover = function (this: any) {
         this.style.background = 'rgba(255,255,255,0.3)';
         this.style.borderColor = 'rgba(255,255,255,0.5)';
     };
-    langButton.onmouseout = function () {
+    langButton.onmouseout = function (this: any) {
         this.style.background = 'rgba(255,255,255,0.2)';
         this.style.borderColor = 'rgba(255,255,255,0.3)';
     };
@@ -217,11 +240,11 @@ export function createConfigWindow(config) {
             border: 1px solid #e9ecef;
             transition: all 0.2s ease;
         `;
-        typeCard.onmouseover = function () {
+        typeCard.onmouseover = function (this: any) {
             this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
             this.style.transform = 'translateY(-2px)';
         };
-        typeCard.onmouseout = function () {
+        typeCard.onmouseout = function (this: any) {
             this.style.boxShadow = 'none';
             this.style.transform = 'translateY(0)';
         };
@@ -240,7 +263,7 @@ export function createConfigWindow(config) {
         `;
 
         // 添加图标
-        typeTitle.innerHTML = `<span style="font-size: 18px;">${eventTypeIcons[eventType] || '•'}</span> ${typeTitle.textContent}`;
+        typeTitle.innerHTML = `<span style="font-size: 18px;">${(eventTypeIcons as any)[eventType] || '•'}</span> ${typeTitle.textContent}`;
 
         typeCard.appendChild(typeTitle);
 
@@ -279,10 +302,10 @@ export function createConfigWindow(config) {
                 transition: all 0.2s ease;
                 user-select: none;
             `;
-            label.onmouseover = function () {
+            label.onmouseover = function (this: any) {
                 this.style.borderColor = '#667eea';
             };
-            label.onmouseout = function () {
+            label.onmouseout = function (this: any) {
                 if (!checkbox.checked) {
                     this.style.borderColor = '#dee2e6';
                 }
@@ -371,11 +394,11 @@ export function createConfigWindow(config) {
         font-weight: 500;
         transition: all 0.2s ease;
     `;
-    cancelButton.onmouseover = function () {
+    cancelButton.onmouseover = function (this: any) {
         this.style.background = '#e9ecef';
         this.style.borderColor = '#ced4da';
     };
-    cancelButton.onmouseout = function () {
+    cancelButton.onmouseout = function (this: any) {
         this.style.background = '#f8f9fa';
         this.style.borderColor = '#dee2e6';
     };
@@ -396,11 +419,11 @@ export function createConfigWindow(config) {
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         transition: all 0.2s ease;
     `;
-    saveButton.onmouseover = function () {
+    saveButton.onmouseover = function (this: any) {
         this.style.transform = 'translateY(-2px)';
         this.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.5)';
     };
-    saveButton.onmouseout = function () {
+    saveButton.onmouseout = function (this: any) {
         this.style.transform = 'translateY(0)';
         this.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
     };
@@ -436,9 +459,11 @@ export function createConfigWindow(config) {
 
     // 触发动画
     requestAnimationFrame(function () {
-        configWindow.style.opacity = '1';
-        configWindow.style.transform = 'translate(-50%, -50%) scale(1)';
-        overlay.style.opacity = '1';
+        if (configWindow && overlay) {
+            configWindow.style.opacity = '1';
+            configWindow.style.transform = 'translate(-50%, -50%) scale(1)';
+            overlay.style.opacity = '1';
+        }
     });
 
     // 添加滚动条样式
@@ -462,12 +487,12 @@ export function createConfigWindow(config) {
     document.head.appendChild(style);
 
     // 设置配置窗口元素到事件处理模块
-    setConfigWindowElements(configWindow, overlay);
+    if (configWindow && overlay) {
+        setConfigWindowElements(configWindow, overlay);
 
-    // 设置配置窗口元素到增强模式模块
-    setEnhancedModeConfigWindowElements(configWindow, overlay);
-
-
+        // 设置配置窗口元素到增强模式模块
+        setEnhancedModeConfigWindowElements(configWindow, overlay);
+    }
 
     // 绑定语言切换事件
     langButton.onclick = function () {
@@ -480,10 +505,13 @@ export function createConfigWindow(config) {
     // 绑定保存配置事件
     saveButton.onclick = function () {
         saveConfig(config);
-        applyEnhancedMode();
+        applyEnhancedMode(config);
     };
-    return {
-        configWindow,
-        overlay
-    };
+
+    if (configWindow && overlay) {
+        return {
+            configWindow,
+            overlay
+        };
+    }
 }

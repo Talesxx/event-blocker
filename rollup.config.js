@@ -1,5 +1,6 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
+import typescript from '@rollup/plugin-typescript';
 
 // 用户脚本头
 const userScriptHeader = `// ==UserScript==
@@ -22,7 +23,7 @@ const userScriptHeader = `// ==UserScript==
 const isDev = process.env.NODE_ENV === 'development';
 
 export default {
-  input: 'src/main.js',
+  input: 'src/main.ts',
   output: {
     file: 'dist/event-blocker.user.js',
     format: 'iife',
@@ -31,6 +32,7 @@ export default {
   },
   plugins: [
     resolve(),
-    commonjs()
+    commonjs(),
+    typescript()
   ]
 };

@@ -2,22 +2,22 @@
 
 // 增强模式状态
 let enhancedModeEnabled = false;
-let blockedEventTypes = new Set();
-let configWindow = null;
-let overlay = null;
+let blockedEventTypes = new Set<string>();
+let configWindow: HTMLElement | null = null;
+let overlay: HTMLElement | null = null;
 
 // 保存原始的 addEventListener 方法
 const originalAddEventListener = window.EventTarget.prototype.addEventListener;
 const originalRemoveEventListener = window.EventTarget.prototype.removeEventListener;
 
 // 存储被拦截的事件监听器
-const interceptedListeners = new WeakMap();
+const interceptedListeners = new WeakMap<EventTarget, Map<string, Map<EventListenerOrEventListenerObject, EventListenerOrEventListenerObject>>>();
 
 // 检查元素是否在配置窗口内
-function isInsideConfigWindow(target) {
-    if (!configWindow && !overlay) return false;
+function isInsideConfigWindow(target: EventTarget | null): boolean {
+    if (!configWindow && !overlay || !target) return false;
 
-    let element = target;
+    let element: Node | null = target as Node;
     while (element) {
         if (element === configWindow || element === overlay) {
             return true;
@@ -28,13 +28,13 @@ function isInsideConfigWindow(target) {
 }
 
 // 创建拦截的事件处理器
-function createInterceptedHandler(originalHandler, eventType) {
+function createInterceptedHandler(originalHandler: EventListenerOrEventListenerObject, eventType: string): EventListenerOrEventListenerObject {
     if (typeof originalHandler !== 'function') {
         console.log("传入的监听器不是函数，无法创建拦截处理器。", originalHandler, eventType);
         return originalHandler;
     }
 
-    return function interceptedHandler(event) {
+    return function interceptedHandler(this: EventTarget, event: Event): boolean | void {
         // 是否拦截 该事件类型
         let isBlocked = blockedEventTypes.has(eventType);
 
@@ -56,23 +56,23 @@ function createInterceptedHandler(originalHandler, eventType) {
             return false;
         }
         // 执行原始处理器
-        return originalHandler.call(this, event);
+        return (originalHandler as EventListener).call(this, event);
     };
 }
 
 // 重写 addEventListener
-function overrideAddEventListener() {
-    window.EventTarget.prototype.addEventListener = function (type, listener, options) {
+function overrideAddEventListener(): void {
+    window.EventTarget.prototype.addEventListener = function (type: string, listener: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) {
         // 如果监听器是 null 或 undefined，直接调用原始方法
         if (!listener) {
            // console.log("监听器是 null 或 undefined。未拦截:", this, type, listener, options);
-            return originalAddEventListener(type, listener, options);
+            return originalAddEventListener.call(this, type, listener, options);
         }
 
         // 检查 this 是否是对象，如果不是，直接调用原始方法
         if (typeof this !== 'object' || this === null) {
            // console.log("this 不是对象或 null，增强模式无法完美处理。未拦截:", this, type, listener, options);
-            return originalAddEventListener(type, listener, options);
+            return originalAddEventListener.call(this, type, listener, options);
         }
 
         // 创建拦截的处理器
@@ -84,25 +84,25 @@ function overrideAddEventListener() {
         }
         const elementListeners = interceptedListeners.get(this);
 
-        if (!elementListeners.has(type)) {
-            elementListeners.set(type, new Map());
+        if (!elementListeners?.has(type)) {
+            elementListeners?.set(type, new Map());
         }
-        elementListeners.get(type).set(listener, interceptedHandler);
+        elementListeners?.get(type)?.set(listener, interceptedHandler);
 
         if (typeof listener === 'function' && typeof this === 'object' && this !== null) {
             // 调用原始方法，但使用拦截的处理器
             return originalAddEventListener.call(this, type, interceptedHandler, options);
         } else {
           //  console.log("警告，增强模式无法完美处理的事件。", this, type, listener, options);
-            return originalAddEventListener(type, listener, options);
+            return originalAddEventListener.call(this, type, listener, options);
         }
 
     };
 }
 
 // 重写 removeEventListener
-function overrideRemoveEventListener() {
-    window.EventTarget.prototype.removeEventListener = function (type, listener, options) {
+function overrideRemoveEventListener(): void {
+    window.EventTarget.prototype.removeEventListener = function (type: string, listener: EventListenerOrEventListenerObject | null, options?: EventListenerOptions | boolean) {
         // 检查 this 是否是对象，如果不是，直接调用原始方法
         if (typeof this !== 'object' || this === null) {
             return originalRemoveEventListener.call(this, type, listener, options);
@@ -110,13 +110,13 @@ function overrideRemoveEventListener() {
 
         // 获取存储的拦截处理器
         const elementListeners = interceptedListeners.get(this);
-        if (elementListeners && elementListeners.has(type)) {
+        if (elementListeners && elementListeners.has(type) && listener) {
             const typeListeners = elementListeners.get(type);
-            const interceptedHandler = typeListeners.get(listener);
+            const interceptedHandler = typeListeners?.get(listener);
             if (interceptedHandler) {
                 // 使用拦截的处理器移除
                 const result = originalRemoveEventListener.call(this, type, interceptedHandler, options);
-                typeListeners.delete(listener);
+                typeListeners?.delete(listener);
                 return result;
             }
         }
@@ -128,7 +128,7 @@ function overrideRemoveEventListener() {
 
 let initStatus = false;
 // 初始化增强模式事件阻止器
-export function initEnhancedEventBlocker() {
+export function initEnhancedEventBlocker(): void {
     if (initStatus) return;
     initStatus = true;
     overrideAddEventListener();
@@ -136,32 +136,32 @@ export function initEnhancedEventBlocker() {
 }
 
 // 启用增强模式
-export function enableEnhancedMode(eventTypes) {
+export function enableEnhancedMode(eventTypes: string[]): void {
     if (enhancedModeEnabled) return;
     blockedEventTypes = new Set(eventTypes);
     enhancedModeEnabled = true;
 }
 
 // 禁用增强模式
-export function disableEnhancedMode() {
+export function disableEnhancedMode(): void {
     if (!enhancedModeEnabled) return;
     enhancedModeEnabled = false;
     blockedEventTypes.clear();
 }
 
 // 设置配置窗口元素
-export function setEnhancedModeConfigWindowElements(window, overlayElement) {
+export function setEnhancedModeConfigWindowElements(window: HTMLElement, overlayElement: HTMLElement): void {
     configWindow = window;
     overlay = overlayElement;
 }
 
 // 检查增强模式是否启用
-export function isEnhancedModeEnabled() {
+export function isEnhancedModeEnabled(): boolean {
     return enhancedModeEnabled;
 }
 
 // 获取增强模式状态
-export function getEnhancedModeStatus() {
+export function getEnhancedModeStatus(): { enabled: boolean; blockedTypes: string[] } {
     return {
         enabled: enhancedModeEnabled,
         blockedTypes: Array.from(blockedEventTypes)

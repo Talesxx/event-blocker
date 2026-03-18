@@ -1,7 +1,10 @@
 import { translations } from '../constants/events';
 
+// 语言类型
+type Language = 'zh' | 'en';
+
 // 切换语言
-export function toggleLanguage(currentLanguage) {
+export function toggleLanguage(currentLanguage: Language): Language {
     currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
     GM_setValue('eventBlockerLanguage', currentLanguage);
     
@@ -14,10 +17,10 @@ export function toggleLanguage(currentLanguage) {
     return currentLanguage;
 }
 
-export function getCurrentLanguage() {
+export function getCurrentLanguage(): Language {
     return GM_getValue('eventBlockerLanguage', 'zh');
 }
 // 获取翻译文本
-export function t(language, key) {
-    return translations[language][key] || key;
+export function t(language: Language, key: string): string {
+    return (translations[language] as any)[key] || key;
 }
