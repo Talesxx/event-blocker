@@ -1,7 +1,7 @@
 import { translations } from '../constants/events';
 
 // 切换语言
-export function toggleLanguage(currentLanguage, createConfigWindow, closeConfigWindow) {
+export function toggleLanguage(currentLanguage) {
     currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
     GM_setValue('eventBlockerLanguage', currentLanguage);
     
@@ -11,13 +11,12 @@ export function toggleLanguage(currentLanguage, createConfigWindow, closeConfigW
         menuCommand.textContent = t(currentLanguage, 'menuCommand');
     }
     
-    // 重新创建配置窗口
-    closeConfigWindow();
-    createConfigWindow();
-    
     return currentLanguage;
 }
 
+export function getCurrentLanguage() {
+    return GM_getValue('eventBlockerLanguage', 'zh');
+}
 // 获取翻译文本
 export function t(language, key) {
     return translations[language][key] || key;

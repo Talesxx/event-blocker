@@ -2,6 +2,7 @@ import { events, eventTypeIcons } from '../constants/events';
 import { t } from '../utils/i18n';
 import { setConfigWindowElements } from '../core/eventHandler';
 import { setEnhancedModeConfigWindowElements } from '../core/enhancedEventBlocker';
+import { toggleLanguage, getCurrentLanguage } from '../utils/i18n';
 
 // 配置窗口元素
 let configWindow = null;
@@ -18,17 +19,18 @@ export function closeConfigWindow() {
 }
 
 // 创建配置窗口
-export function createConfigWindow(currentLanguage, config) {
+export function createConfigWindow(config) {
+    const currentLanguage = getCurrentLanguage();
     // 检查配置窗口是否已经存在
     if (configWindow && overlay) {
         // 窗口已存在，直接返回
         return;
     }
-    
+
     // 检查页面上是否已经存在配置窗口元素
     const existingWindow = document.getElementById('event-blocker-config-window');
     const existingOverlay = document.getElementById('event-blocker-overlay');
-    
+
     if (existingWindow || existingOverlay) {
         // 清理已存在的元素
         if (existingWindow) {
@@ -38,7 +40,7 @@ export function createConfigWindow(currentLanguage, config) {
             document.body.removeChild(existingOverlay);
         }
     }
-    
+
     // 创建配置窗口
     configWindow = document.createElement('div');
     configWindow.id = 'event-blocker-config-window';
@@ -67,7 +69,7 @@ export function createConfigWindow(currentLanguage, config) {
         padding: 20px 25px;
         border-bottom: 1px solid rgba(255,255,255,0.2);
     `;
-    
+
     const title = document.createElement('h2');
     title.textContent = t(currentLanguage, 'title');
     title.style.cssText = `
@@ -91,7 +93,7 @@ export function createConfigWindow(currentLanguage, config) {
         align-items: center;
         gap: 8px;
     `;
-    
+
     const enhancedModeLabel = document.createElement('span');
     enhancedModeLabel.textContent = t(currentLanguage, 'enhancedMode');
     enhancedModeLabel.style.cssText = `
@@ -99,7 +101,7 @@ export function createConfigWindow(currentLanguage, config) {
         font-size: 14px;
         font-weight: 500;
     `;
-    
+
     const enhancedModeSwitch = document.createElement('label');
     enhancedModeSwitch.style.cssText = `
         position: relative;
@@ -108,7 +110,7 @@ export function createConfigWindow(currentLanguage, config) {
         height: 24px;
         cursor: pointer;
     `;
-    
+
     const enhancedModeInput = document.createElement('input');
     enhancedModeInput.type = 'checkbox';
     enhancedModeInput.id = 'enhanced-mode-toggle';
@@ -118,7 +120,7 @@ export function createConfigWindow(currentLanguage, config) {
         width: 0;
         height: 0;
     `;
-    
+
     const enhancedModeSlider = document.createElement('span');
     enhancedModeSlider.style.cssText = `
         position: absolute;
@@ -131,7 +133,7 @@ export function createConfigWindow(currentLanguage, config) {
         transition: .3s;
         border-radius: 24px;
     `;
-    
+
     const enhancedModeKnob = document.createElement('span');
     enhancedModeKnob.style.cssText = `
         position: absolute;
@@ -146,21 +148,21 @@ export function createConfigWindow(currentLanguage, config) {
         transform: ${config.enhancedMode ? 'translateX(20px)' : 'translateX(0)'};
         box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     `;
-    
+
     enhancedModeSlider.appendChild(enhancedModeKnob);
     enhancedModeSwitch.appendChild(enhancedModeInput);
     enhancedModeSwitch.appendChild(enhancedModeSlider);
-    
+
     // 切换事件
-    enhancedModeInput.addEventListener('change', function(e) {
+    enhancedModeInput.addEventListener('change', function (e) {
         const isEnabled = e.target.checked;
         config.enhancedMode = isEnabled;
-        
+
         // 更新UI
         enhancedModeSlider.style.backgroundColor = isEnabled ? '#4CAF50' : '#ccc';
         enhancedModeKnob.style.transform = isEnabled ? 'translateX(20px)' : 'translateX(0)';
     });
-    
+
     enhancedModeContainer.appendChild(enhancedModeLabel);
     enhancedModeContainer.appendChild(enhancedModeSwitch);
     header.appendChild(enhancedModeContainer);
@@ -183,11 +185,11 @@ export function createConfigWindow(currentLanguage, config) {
         font-weight: 500;
         transition: all 0.2s ease;
     `;
-    langButton.onmouseover = function() {
+    langButton.onmouseover = function () {
         this.style.background = 'rgba(255,255,255,0.3)';
         this.style.borderColor = 'rgba(255,255,255,0.5)';
     };
-    langButton.onmouseout = function() {
+    langButton.onmouseout = function () {
         this.style.background = 'rgba(255,255,255,0.2)';
         this.style.borderColor = 'rgba(255,255,255,0.3)';
     };
@@ -215,11 +217,11 @@ export function createConfigWindow(currentLanguage, config) {
             border: 1px solid #e9ecef;
             transition: all 0.2s ease;
         `;
-        typeCard.onmouseover = function() {
+        typeCard.onmouseover = function () {
             this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
             this.style.transform = 'translateY(-2px)';
         };
-        typeCard.onmouseout = function() {
+        typeCard.onmouseout = function () {
             this.style.boxShadow = 'none';
             this.style.transform = 'translateY(0)';
         };
@@ -236,10 +238,10 @@ export function createConfigWindow(currentLanguage, config) {
             align-items: center;
             gap: 8px;
         `;
-        
+
         // 添加图标
         typeTitle.innerHTML = `<span style="font-size: 18px;">${eventTypeIcons[eventType] || '•'}</span> ${typeTitle.textContent}`;
-        
+
         typeCard.appendChild(typeTitle);
 
         // 创建事件列表容器
@@ -259,7 +261,7 @@ export function createConfigWindow(currentLanguage, config) {
             checkbox.style.cssText = `
                 display: none;
             `;
-            
+
             const label = document.createElement('label');
             label.htmlFor = `event-${eventType}-${eventName}`;
             label.textContent = t(currentLanguage, eventName);
@@ -277,15 +279,15 @@ export function createConfigWindow(currentLanguage, config) {
                 transition: all 0.2s ease;
                 user-select: none;
             `;
-            label.onmouseover = function() {
+            label.onmouseover = function () {
                 this.style.borderColor = '#667eea';
             };
-            label.onmouseout = function() {
+            label.onmouseout = function () {
                 if (!checkbox.checked) {
                     this.style.borderColor = '#dee2e6';
                 }
             };
-            
+
             // 创建自定义复选框
             const customCheckbox = document.createElement('span');
             customCheckbox.style.cssText = `
@@ -300,7 +302,7 @@ export function createConfigWindow(currentLanguage, config) {
                 transition: all 0.2s ease;
                 flex-shrink: 0;
             `;
-            
+
             // 添加选中标记
             const checkmark = document.createElement('span');
             checkmark.textContent = '✓';
@@ -312,7 +314,7 @@ export function createConfigWindow(currentLanguage, config) {
                 transition: opacity 0.2s ease;
             `;
             customCheckbox.appendChild(checkmark);
-            
+
             // 更新复选框状态
             function updateCheckboxState() {
                 if (checkbox.checked) {
@@ -331,10 +333,10 @@ export function createConfigWindow(currentLanguage, config) {
                     checkmark.style.opacity = '0';
                 }
             }
-            
+
             updateCheckboxState();
             checkbox.addEventListener('change', updateCheckboxState);
-            
+
             label.insertBefore(customCheckbox, label.firstChild);
             eventContainer.appendChild(checkbox);
             eventContainer.appendChild(label);
@@ -369,11 +371,11 @@ export function createConfigWindow(currentLanguage, config) {
         font-weight: 500;
         transition: all 0.2s ease;
     `;
-    cancelButton.onmouseover = function() {
+    cancelButton.onmouseover = function () {
         this.style.background = '#e9ecef';
         this.style.borderColor = '#ced4da';
     };
-    cancelButton.onmouseout = function() {
+    cancelButton.onmouseout = function () {
         this.style.background = '#f8f9fa';
         this.style.borderColor = '#dee2e6';
     };
@@ -394,11 +396,11 @@ export function createConfigWindow(currentLanguage, config) {
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         transition: all 0.2s ease;
     `;
-    saveButton.onmouseover = function() {
+    saveButton.onmouseover = function () {
         this.style.transform = 'translateY(-2px)';
         this.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.5)';
     };
-    saveButton.onmouseout = function() {
+    saveButton.onmouseout = function () {
         this.style.transform = 'translateY(0)';
         this.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
     };
@@ -433,7 +435,7 @@ export function createConfigWindow(currentLanguage, config) {
     document.body.appendChild(configWindow);
 
     // 触发动画
-    requestAnimationFrame(function() {
+    requestAnimationFrame(function () {
         configWindow.style.opacity = '1';
         configWindow.style.transform = 'translate(-50%, -50%) scale(1)';
         overlay.style.opacity = '1';
@@ -461,14 +463,27 @@ export function createConfigWindow(currentLanguage, config) {
 
     // 设置配置窗口元素到事件处理模块
     setConfigWindowElements(configWindow, overlay);
-    
+
     // 设置配置窗口元素到增强模式模块
     setEnhancedModeConfigWindowElements(configWindow, overlay);
 
+
+
+    // 绑定语言切换事件
+    langButton.onclick = function () {
+        toggleLanguage(currentLanguage);
+        closeConfigWindow();
+        // 更新配置窗口中的文本
+        createConfigWindow(config);
+    };
+
+    // 绑定保存配置事件
+    saveButton.onclick = function () {
+        saveConfig(config);
+        applyEnhancedMode();
+    };
     return {
         configWindow,
-        overlay,
-        langButton,
-        saveButton
+        overlay
     };
 }
