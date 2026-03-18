@@ -506,6 +506,7 @@ export function createConfigWindow(config: EventConfig): { configWindow: HTMLEle
     saveButton.onclick = function () {
         saveConfig(config);
         applyEnhancedMode(config);
+        closeConfigWindow();
     };
 
     if (configWindow && overlay) {

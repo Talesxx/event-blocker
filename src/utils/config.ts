@@ -61,5 +61,5 @@ export function saveConfig(config: EventConfig) {
     GM_setValue('eventBlockerConfig', config);
     
     // 重新加载页面以应用新配置
-    location.reload();
+    // location.reload();
 }
