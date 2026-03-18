@@ -6,7 +6,7 @@ import typescript from '@rollup/plugin-typescript';
 const userScriptHeader = `// ==UserScript==
 // @name         事件屏蔽器
 // @namespace    http://tampermonkey.net/
-// @version      1.10
+// @version      1.11
 // @description  屏蔽浏览器中的鼠标、键盘等事件，可配置
 // @author       Tales
 // @license      MIT
